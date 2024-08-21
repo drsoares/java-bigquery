@@ -50,6 +50,13 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
      */
     public abstract Builder setRefreshIntervalMs(Long refreshIntervalMs);
 
+    /**
+     * Set max staleness materialized view option helps you achieve consistently high performance with controlled costs
+     * when processing large, frequently changing datasets. With the max_staleness parameter, you can adjust the
+     * freshness of the results to tune query performance. If null, the default value is 10 min.
+     */
+    public abstract Builder setMaxStalenessMs(String maxStalenessMs);
+
     /** Sets the table schema. */
     @Override
     public abstract Builder setSchema(Schema schema);
@@ -126,6 +133,13 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
   @Nullable
   public abstract Clustering getClustering();
 
+  /**
+   * Returns the max staleness configuration for this table. If {@code null},
+   * the max staleness is using the default value (10 min).
+   */
+  @Nullable
+  public abstract String getMaxStaleness();
+
   /** Returns a builder for the {@code MaterializedViewDefinition} object. */
   public abstract Builder toBuilder();
 
@@ -155,6 +169,9 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
     }
     if (getClustering() != null) {
       tablePb.setClustering(getClustering().toPb());
+    }
+    if (getMaxStaleness() != null) {
+      tablePb.setMaxStaleness(getMaxStaleness());
     }
     return tablePb;
   }
@@ -206,6 +223,9 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
       }
       if (tablePb.getClustering() != null) {
         builder.setClustering(Clustering.fromPb(tablePb.getClustering()));
+      }
+      if (tablePb.getMaxStaleness() != null) {
+        builder.setMaxStalenessMs(tablePb.getMaxStaleness());
       }
     }
     return builder.build();
